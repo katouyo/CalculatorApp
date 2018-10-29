@@ -14,65 +14,115 @@ class ViewController: UIViewController {
     //計算結果:数値
     var resultInt: Int = 0
     //入力結果:文字列
-    var inputString: String = ""
+    var inputString: String? = ""
     //入力結果:数値
     var inputInt: Int = 0
-    //入力が数値か？
-    var isNumber: Bool = false
     //四則演算ID
+    //(1:+,2:-,3:*,4:/,9:=,0:c)
     var calculateID: Int = 0
+    //四則
+    var isSeveralSymbol: Bool = false
+    //直前入力が数値か？
+    var isNumber = false
+    //前に入力した数値
+    var previousNumber:String? = "0"
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        showResult()
+        result.text = String(resultInt)
     }
     
     @IBAction func cButton(_ sender: Any) {
-        isNumber = false
         resultInt = 0
         inputInt = 0
         inputString = ""
         calculateID = 0
-        showResult()
+        isSeveralSymbol = false
+        isNumber = false
+        previousNumber = "0"
+        result.text = String(resultInt)
     }
     
     func debug() {
         print("resultInt = \(resultInt)")
-        print("inputString = \(inputString)")
+        print("inputString = \(inputString!)")
         print("inputInt = \(inputInt)")
-        print("isNumber = \(isNumber)")
         print("calculateID = \(calculateID)")
+        print("isSeveralSymbol = \(isSeveralSymbol)")
+        print("isNumber = \(isNumber)")
+        print("previousNumber = \(previousNumber!)")
         print("----------------------")
     }
     
-    //計算結果を表示
-    func showResult(){
-        result.text = String(resultInt)
+    // 数値入力時
+    func inputNumber(number: String) {
+        
+        inputString = inputString! + number
+        
+        //数値を表示
+        inputInt = Int(inputString!)!
+        result.text = String(inputInt)
+        
+        isNumber = true
+
     }
     
-    //入力を表示
-    func showInput(){
+    // (+-*/)入力時
+    func inputSymbol(calculateID: Int) {
         
-        inputInt = Int(inputString)!
+        self.calculateID = calculateID
         
-        //数値入力
         if isNumber {
-            result.text = String(inputInt)
-        } else {
-            resultInt = inputInt
+            inputInt = Int(inputString!)!
             inputString = ""
+            
+            //初回入力時
+            if isSeveralSymbol == false {
+                resultInt = inputInt
+                result.text = String(resultInt)
+                isSeveralSymbol = true
+            }
+            //2回目以降入力時
+            else {
+                calculate(calculateID: calculateID)
+                result.text = String(resultInt)
+            }
         }
+        
+        isNumber = false
+        
     }
     
     @IBAction func equalButton(_ sender: Any) {
-        isNumber = false
-        calculate(id: calculateID)
-        showResult()
+        
+        print("=を入力")
         debug()
+        
+        //直前が数値入力
+        if isNumber {
+            inputInt = Int(inputString!)!
+            inputString = ""
+            calculate(calculateID: calculateID)
+            result.text = String(resultInt)
+        }
+        else if calculateID == 9 && inputString != "" {
+            inputInt = Int(inputString!)!
+            inputString = ""
+            calculate(calculateID: calculateID)
+            result.text = String(resultInt)
+        }
+        
+        calculateID = 9
+        isNumber = false
+        isSeveralSymbol = false
+        
+        print("=を入力処理後")
+        debug()
+        
     }
     
-    func calculate(id: Int) {
-        switch id {
+    func calculate(calculateID: Int) {
+        switch calculateID {
         case 1:
             resultInt = resultInt + inputInt
         case 2:
@@ -88,91 +138,58 @@ class ViewController: UIViewController {
     }
     
     @IBAction func waruButton(_ sender: Any) {
-        isNumber = false
-        calculateID = 4
-        showInput()
+        inputSymbol(calculateID: 4)
     }
     
     @IBAction func kakeruButton(_ sender: Any) {
-        isNumber = false
-        calculateID = 3
-        showInput()
+        inputSymbol(calculateID: 3)
     }
     
     @IBAction func hikuButton(_ sender: Any) {
-        debug()
-        isNumber = false
-        calculateID = 2
-        showInput()
-        debug()
+        inputSymbol(calculateID: 2)
     }
     
     @IBAction func tasuButton(_ sender: Any) {
-        debug()
-        isNumber = false
-        calculateID = 1
-        showInput()
-        debug()
+        inputSymbol(calculateID: 1)
     }
     
     @IBAction func sevenButton(_ sender: Any) {
-        isNumber = true
-        inputString = inputString + "7"
-        showInput()
+        inputNumber(number: "7")
     }
     
     @IBAction func eightButton(_ sender: Any) {
-        isNumber = true
-        inputString = inputString + "8"
-        showInput()
+        inputNumber(number: "8")
     }
     
     @IBAction func nineButton(_ sender: Any) {
-        isNumber = true
-        inputString = inputString + "9"
-        showInput()
+        inputNumber(number: "9")
     }
     
     @IBAction func fourButton(_ sender: Any) {
-        isNumber = true
-        inputString = inputString + "4"
-        showInput()
+        inputNumber(number: "4")
     }
     
     @IBAction func fiveButton(_ sender: Any) {
-        isNumber = true
-        inputString = inputString + "5"
-        showInput()
+        inputNumber(number: "5")
     }
     
     @IBAction func sixButton(_ sender: Any) {
-        isNumber = true
-        inputString = inputString + "6"
-        showInput()
+        inputNumber(number: "6")
     }
     
     @IBAction func oneButton(_ sender: Any) {
-        isNumber = true
-        inputString = inputString + "1"
-        showInput()
+        inputNumber(number: "1")
     }
     
     @IBAction func twoButton(_ sender: Any) {
-        isNumber = true
-        inputString = inputString + "2"
-        showInput()
+        inputNumber(number: "2")
     }
     
     @IBAction func threeButton(_ sender: Any) {
-        isNumber = true
-        inputString = inputString + "3"
-        showInput()
+        inputNumber(number: "3")
     }
     
     @IBAction func zeroButton(_ sender: Any) {
-        isNumber = true
-        inputString = inputString + "0"
-        showInput()
+        inputNumber(number: "0")
     }
 }
-
