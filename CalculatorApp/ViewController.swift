@@ -20,12 +20,15 @@ class ViewController: UIViewController {
     //四則演算ID
     //(1:+,2:-,3:*,4:/,9:=,0:c)
     var calculateID: Int = 0
+    var preCalculateID: Int = 0
     //四則
     var isSeveralSymbol: Bool = false
     //直前入力が数値か？
-    var isNumber = false
+    var isNumber: Bool = false
+    //直前入力がイコールか？
+    var isEqual: Bool = false
     //前に入力した数値
-    var previousNumber:String? = "0"
+    var preNumber:Int = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,9 +40,11 @@ class ViewController: UIViewController {
         inputInt = 0
         inputString = ""
         calculateID = 0
+        preCalculateID = 0
         isSeveralSymbol = false
         isNumber = false
-        previousNumber = "0"
+        isEqual = false
+        preNumber = 0
         result.text = String(resultInt)
     }
     
@@ -48,15 +53,18 @@ class ViewController: UIViewController {
         print("inputString = \(inputString!)")
         print("inputInt = \(inputInt)")
         print("calculateID = \(calculateID)")
+        print("preCalculateID = \(preCalculateID)")
         print("isSeveralSymbol = \(isSeveralSymbol)")
         print("isNumber = \(isNumber)")
-        print("previousNumber = \(previousNumber!)")
+        print("isEqual = \(isEqual)")
+        print("preNumber = \(preNumber)")
         print("----------------------")
     }
     
     // 数値入力時
     func inputNumber(number: String) {
         
+        preNumber = 0
         inputString = inputString! + number
         
         //数値を表示
@@ -64,11 +72,14 @@ class ViewController: UIViewController {
         result.text = String(inputInt)
         
         isNumber = true
+        isEqual = false
 
     }
     
     // (+-*/)入力時
     func inputSymbol(calculateID: Int) {
+        
+        preNumber = inputInt
         
         self.calculateID = calculateID
         
@@ -84,37 +95,70 @@ class ViewController: UIViewController {
             }
             //2回目以降入力時
             else {
-                calculate(calculateID: calculateID)
+                if calculateID == preCalculateID {
+                    calculate(calculateID: calculateID)
+                }
+                else {
+                    calculate(calculateID: preCalculateID)
+                }
                 result.text = String(resultInt)
             }
         }
         
         isNumber = false
+        isEqual = false
         
     }
     
     @IBAction func equalButton(_ sender: Any) {
+        
+        preNumber = inputInt
+        preCalculateID = calculateID
         
         print("=を入力")
         debug()
         
         //直前が数値入力
         if isNumber {
-            inputInt = Int(inputString!)!
-            inputString = ""
-            calculate(calculateID: calculateID)
-            result.text = String(resultInt)
+            //記号入力済
+            if isSeveralSymbol {
+                inputInt = Int(inputString!)!
+                inputString = ""
+                calculate(calculateID: calculateID)
+                result.text = String(resultInt)
+            }
+            else {
+                inputInt = preNumber
+                inputString = ""
+                resultInt = inputInt
+                result.text = String(resultInt)
+            }
         }
-        else if calculateID == 9 && inputString != "" {
-            inputInt = Int(inputString!)!
-            inputString = ""
-            calculate(calculateID: calculateID)
-            result.text = String(resultInt)
+        //直前が数値でない
+        else {
+            //直前がイコール
+            if isEqual {
+                //記号入力済
+                if isSeveralSymbol {
+                    inputInt = preNumber
+                    calculate(calculateID: preCalculateID)
+                    result.text = String(resultInt)
+                }
+                else {
+                    
+                }
+//               if inputString != "" {
+//                    print("通った")
+//                    inputInt = Int(inputString!)!
+//                    inputString = ""
+//                    result.text = String(resultInt)
+//              }
+            }
         }
         
-        calculateID = 9
         isNumber = false
-        isSeveralSymbol = false
+        isEqual = true
+//      isSeveralSymbol = false
         
         print("=を入力処理後")
         debug()
@@ -138,18 +182,22 @@ class ViewController: UIViewController {
     }
     
     @IBAction func waruButton(_ sender: Any) {
+        preCalculateID = calculateID
         inputSymbol(calculateID: 4)
     }
     
     @IBAction func kakeruButton(_ sender: Any) {
+        preCalculateID = calculateID
         inputSymbol(calculateID: 3)
     }
     
     @IBAction func hikuButton(_ sender: Any) {
+        preCalculateID = calculateID
         inputSymbol(calculateID: 2)
     }
     
     @IBAction func tasuButton(_ sender: Any) {
+        preCalculateID = calculateID
         inputSymbol(calculateID: 1)
     }
     
